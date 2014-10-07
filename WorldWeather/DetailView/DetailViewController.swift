@@ -24,45 +24,63 @@ import UIKit
 
 class DetailViewController: UIViewController {
   
-  // MARK: - IBOutlets
-  @IBOutlet weak var weatherIconImageView: UIImageView!
-  
-  // MARK: - Properties
-  var cityWeather: CityWeather? {
-  didSet {
-    // Update the view.
-    if isViewLoaded() {
-      configureView()
-      provideDataToChildViewControllers()
+    // MARK: - IBOutlets
+    @IBOutlet weak var weatherIconImageView: UIImageView!
+
+    // MARK: - Properties
+    var cityWeather: CityWeather? {
+        didSet {
+            // Update the view.
+            if isViewLoaded() {
+                configureView()
+                provideDataToChildViewControllers()
+            }
+        }
     }
-  }
-  }
-  
-  // MARK: - Lifecycle
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
-    configureView()
-    provideDataToChildViewControllers()
-    // Prep the navigation item so the back button doesn't disappear
-    navigationItem.leftItemsSupplementBackButton = true
-    navigationItem.hidesBackButton = false
-  }
-  
-  // MARK: - Utility methods
-  private func configureView() {
-    if let cityWeather = cityWeather {
-      title = cityWeather.name
-      weatherIconImageView.image = cityWeather.weather[0].status.weatherType.image
+
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureView()
+        provideDataToChildViewControllers()
+        
+        // Prep the navigation item so the back button doesn't disappear
+        navigationItem.leftItemsSupplementBackButton = true
+        navigationItem.hidesBackButton = false
+        
+        configureTraitOverrideForSize(view.bounds.size)
     }
-  }
-  
-  private func provideDataToChildViewControllers() {
-    for vc in childViewControllers {
-      if let cityWeatherContainer = vc as? CityWeatherContainer {
-        cityWeatherContainer.cityWeather = cityWeather
-      }
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        configureTraitOverrideForSize(size)
     }
-  }
+    
+    // MARK: - Utility methods
+    private func configureView() {
+        if let cityWeather = cityWeather {
+            title = cityWeather.name
+            weatherIconImageView.image = cityWeather.weather[0].status.weatherType.image
+        }
+    }
+
+    private func provideDataToChildViewControllers() {
+        for vc in childViewControllers {
+            if let cityWeatherContainer = vc as? CityWeatherContainer {
+                cityWeatherContainer.cityWeather = cityWeather
+            }
+        }
+    }
+    
+    private func configureTraitOverrideForSize(size: CGSize) {
+        var traitOverride: UITraitCollection?
+        
+        if size.height < 1000 {
+            traitOverride = UITraitCollection(verticalSizeClass: .Compact)
+        }
+        
+        for viewController in childViewControllers as [UIViewController] {
+            setOverrideTraitCollection(traitOverride, forChildViewController: viewController)
+        }
+    }
 }
 

@@ -22,9 +22,13 @@
 
 import UIKit
 
+@objc protocol WeeklyWeatherContainer {
+    var dailyWeather: [DailyWeather] { get set }
+}
+
 let reuseIdentifier = "DailyWeatherCell"
 
-class DailyWeatherCollectionViewController: UICollectionViewController {
+class DailyWeatherCollectionViewController: UICollectionViewController, WeeklyWeatherContainer {
 
   var dailyWeather: [DailyWeather] = [DailyWeather]() {
   didSet {

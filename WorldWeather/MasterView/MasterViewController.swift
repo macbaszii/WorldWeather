@@ -24,61 +24,72 @@ import UIKit
 
 class MasterViewController: UITableViewController {
   
-  var detailViewController: DetailViewController? = nil
-  let weatherData = WeatherData()
-  
-  override func awakeFromNib() {
-    super.awakeFromNib()
-    if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
-      self.clearsSelectionOnViewWillAppear = false
-      self.preferredContentSize = CGSize(width: 320.0, height: 600.0)
+    var detailViewController: DetailViewController? = nil
+    let weatherData = WeatherData()
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+            self.clearsSelectionOnViewWillAppear = false
+            self.preferredContentSize = CGSize(width: 320.0, height: 600.0)
+        }
+        
+        prepareNavigationBarAppearance()
     }
-  }
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
-    if let split = self.splitViewController {
-      let controllers = split.viewControllers
-      detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
-      if let detailViewController = detailViewController {
-        detailViewController.cityWeather = weatherData.cities[0]
-      }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        if let split = self.splitViewController {
+            let controllers = split.viewControllers
+            detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
+            if let detailViewController = detailViewController {
+                detailViewController.cityWeather = weatherData.cities[0]
+            }
+        }
+
+        self.title = "Cities"
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100.0
     }
     
-    self.title = "Cities"
-    tableView.rowHeight = UITableViewAutomaticDimension
-    tableView.estimatedRowHeight = 100.0
-  }
-  
-  
-  // MARK: - Segues
-  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    if segue.identifier == "showDetail" {
-      if let indexPath = self.tableView.indexPathForSelectedRow() {
-        let controller = (segue.destinationViewController as UINavigationController).topViewController as DetailViewController
-        controller.cityWeather = weatherData.cities[indexPath.row]
-        controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-      }
-    }
-  }
-  
-  // MARK: - Table View
-  override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-    return 1
-  }
-  
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return weatherData.cities.count
-  }
-  
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("CityCell", forIndexPath: indexPath) as CityTableViewCell
+    // MARK: - Utility methods
     
-    let city = weatherData.cities[indexPath.row]
-    cell.cityWeather = city
-    return cell
-  }
-  
+    private func prepareNavigationBarAppearance() {
+        let font = UIFont(name: "HelveticaNeue-Light", size: 30)
+        
+        let regularVertical = UITraitCollection(verticalSizeClass: .Regular)
+        UINavigationBar.appearanceForTraitCollection(regularVertical).titleTextAttributes = [NSFontAttributeName: font]
+        
+        let compactVertical = UITraitCollection(verticalSizeClass: .Compact)
+        UINavigationBar.appearanceForTraitCollection(compactVertical).titleTextAttributes = [NSFontAttributeName: font.fontWithSize(20)]
+    }
+
+    // MARK: - Segues
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "showDetail" {
+            if let indexPath = self.tableView.indexPathForSelectedRow() {
+                let controller = (segue.destinationViewController as UINavigationController).topViewController as DetailViewController
+                controller.cityWeather = weatherData.cities[indexPath.row]
+                controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
+            }
+        }
+    }
+
+    // MARK: - Table View
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
+    }
+
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return weatherData.cities.count
+    }
+
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("CityCell", forIndexPath: indexPath) as CityTableViewCell
+
+        let city = weatherData.cities[indexPath.row]
+        cell.cityWeather = city
+        return cell
+    }
 }
 
